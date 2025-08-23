@@ -24,7 +24,7 @@ jobs:
       - name: Build
         run: make
         env:
-          NDK_PATH: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
+          NDK_PATH: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Upload release
         uses: actions/upload-artifact@v4
