@@ -25,7 +25,7 @@ void before_audit_log_format(hook_fargs3_t *args, void *udata)
 
         if (unlikely(strstr(tcontext, ":su:") || strstr(tcontext, ":magisk:"))) {
             static const char *kernel_str = "u:r:kernel:s0";
-            args->arg2 = (uint64_t)kernel_str;
+            args->arg2 = (uintptr_t)kernel_str;
         }
     }
 }
