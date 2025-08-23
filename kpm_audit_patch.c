@@ -13,35 +13,21 @@ KPM_DESCRIPTION("Replace sensitive context in audit log");
 
 struct audit_buffer;
 
-void *audit_log_format;
-void (*old_audit_log_format)(struct audit_buffer *ab, const char *fmt, ...);
-void (*audit_log_vformat)(struct audit_buffer *ab, const char *fmt, va_list args);
+void (*audit_log_format)(struct audit_buffer *ab, const char *fmt, ...);
 
-void my_audit_log_format(struct audit_buffer *ab, const char *fmt, ...)
+void before_audit_log_format(hook_fargs3_t *args, void *udata)
 {
-    va_list args;
-
-    if (!ab) return;
-    va_start(args, fmt);
-
+    const char *fmt = (const char *)args->arg1;
     const char *percent = strchr(fmt, '%');
 
     if (percent && percent[1] == 's' && strchr(percent + 1, '%') == NULL && strstr(fmt, "tcontext=")) {
-        const char *tcontext = va_arg(args, const char*);
-        va_end(args);
+        const char *tcontext = (const char *)args->arg2;
 
         if (unlikely(strstr(tcontext, ":su:") || strstr(tcontext, ":magisk:"))) {
-            old_audit_log_format(ab, fmt, "u:r:kernel:s0");
+            static const char *kernel_str = "u:r:kernel:s0";
+            args->arg2 = (uint64_t)kernel_str;
         }
-        else {
-            old_audit_log_format(ab, fmt, tcontext);
-        }
-
-        return;
     }
-
-    audit_log_vformat(ab, fmt, args);
-    va_end(args);
 }
 
 static long audit_patch_init(const char *args, const char *event, void *__user reserved)
@@ -55,14 +41,7 @@ static long audit_patch_init(const char *args, const char *event, void *__user r
         return -1;
     }
 
-    audit_log_vformat = (typeof(audit_log_vformat))kallsyms_lookup_name("audit_log_vformat");
-
-    if (!audit_log_vformat) {
-        pr_err("kpm_audit_patch: Failed to find function audit_log_vformat\n");
-        return -1;
-    }
-
-    hook_err_t err = hook(audit_log_format, my_audit_log_format, (void **)&old_audit_log_format);
+    hook_err_t err = hook_wrap3(audit_log_format, before_audit_log_format, 0, 0);
 
     if (err) {
         pr_err("kpm_audit_patch: Failed to hook audit_log_format: %d\n", err);
