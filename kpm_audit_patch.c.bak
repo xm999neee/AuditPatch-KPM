@@ -4,7 +4,7 @@
 #include <common.h>
 #include <kputils.h>
 #include <linux/string.h>
-#include "frida_hide.h"  // 包含隐藏 Frida 的头文件
+#include "example/frida_hide.h"  // 包含隐藏 Frida 的头文件
 
 ///< The name of the module, each KPM must has a unique name.
 KPM_NAME("kpm-inject-hide");
