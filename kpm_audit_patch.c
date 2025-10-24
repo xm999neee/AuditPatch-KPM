@@ -13,10 +13,16 @@
 #include <asm/current.h>
 
 ///< The name of the module, each KPM must has a unique name.
-KPM_NAME("fridahied");
+KPM_NAME("frida-hide");
 
 ///< The version of the module.
-KPM_VERSION("1");
+KPM_VERSION("1.0");
+
+///< The license type.
+KPM_LICENSE("~");
+
+///< The author.
+KPM_AUTHOR("~");
 
 ///< The description.
 KPM_DESCRIPTION("www.zskkk.cn/posts/31406");
